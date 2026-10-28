@@ -120,7 +120,24 @@ button:focus-visible{outline:3px solid var(--hay-line);outline-offset:2px}
 #fade.on{opacity:1}
 .err{position:absolute;left:10px;right:10px;bottom:10px;background:#fff;color:#B8341F;border:2px solid #B8341F;border-radius:12px;padding:10px 12px;font:700 13px var(--body);z-index:20}
 .cta.cont{background:#3E9A4E;box-shadow:0 4px 0 #2C7339;margin:2px 0 8px}.cta.cont:active{box-shadow:0 1px 0 #2C7339}
-.tlink{pointer-events:auto;display:block;margin-top:8px;padding:6px 12px;border-radius:999px;background:var(--soft);font:800 13px/1.2 var(--body);color:#2C2633}
+.tlinks{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chessCard{display:flex;flex-direction:column;align-items:center;gap:10px}
+.chessCard h3{align-self:stretch;margin-bottom:0}
+.chessCard h3 small{font:700 12px var(--body);color:var(--dim)}
+.chessStatus{font:800 14px/1.3 var(--body);min-height:20px;text-align:center}
+.chessBoard{--bs:min(88vw,46vh,440px);width:var(--bs);height:var(--bs);display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border-radius:8px;overflow:hidden;box-shadow:0 0 0 3px #5A3A24}
+.cq{position:relative;display:flex;align-items:center;justify-content:center;font-size:calc(var(--bs)/8*.78);line-height:1;background:#F3E3C0;padding:0;border-radius:0;min-width:0}
+.cq.d{background:#C46B34}
+.cq.last{box-shadow:inset 0 0 0 100px rgba(242,193,78,.45)}
+.cq.sel{box-shadow:inset 0 0 0 100px rgba(93,170,95,.55)}
+.cq.chk{box-shadow:inset 0 0 0 100px rgba(217,67,47,.6)}
+.cq.mv::after{content:"";position:absolute;width:30%;height:30%;border-radius:50%;background:rgba(44,38,51,.35)}
+.cq.mv.cap::after{width:84%;height:84%;background:none;border:4px solid rgba(44,38,51,.4)}
+.cp{pointer-events:none}
+.cp.w{color:#fff;text-shadow:0 0 1px #2C2633,0 0 2px #2C2633,0 1px 1px #2C2633}
+.cp.b{color:#2C2633;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+.chessBtns{display:flex;gap:8px}.chessBtns .abtn{max-width:none;text-align:center}
+.tlink{pointer-events:auto;display:block;margin-top:0;padding:6px 12px;border-radius:999px;background:var(--soft);font:800 13px/1.2 var(--body);color:#2C2633}
 .how{margin:0 0 4px;padding:0;list-style:none;display:grid;gap:10px}
 .how li{display:flex;gap:11px;align-items:flex-start;font:700 14px/1.4 var(--body)}
 .how li>b{flex:none;width:28px;text-align:center;font-size:21px;line-height:1.2}
@@ -131,7 +148,7 @@ button:focus-visible{outline:3px solid var(--hay-line);outline-offset:2px}
 <body>
 <div id="app"><div id="stage">
   <canvas id="c" aria-label="Игровая сцена"></canvas>
-  <div id="titleOv" class="titleOv"><div class="tcard"><h1>Побег лошадей<br>из конюшни</h1><p>Найди предметы, открой путь — и выведи всех на волю</p><button id="helpBtn" class="tlink" type="button">❓ Как играть</button></div></div>
+  <div id="titleOv" class="titleOv"><div class="tcard"><h1>Побег лошадей<br>из конюшни</h1><p>Найди предметы, открой путь — и выведи всех на волю</p><div class="tlinks"><button id="helpBtn" class="tlink" type="button">❓ Как играть</button><button id="chessBtn" class="tlink" type="button">♟ Шахматы</button></div></div></div>
   <div id="menu" class="menu">
     <div class="mlabel">Маршрут побега</div>
     <div id="routeList" class="rgrid"></div>
@@ -166,9 +183,16 @@ button:focus-visible{outline:3px solid var(--hay-line);outline-offset:2px}
       <li><b>💡</b><span>Подсказки зависят от сложности. «Практика» без штрафов, «Найт Мэр» с одной попыткой.</span></li>
       <li><b>🌿</b><span>«Погулять» открывает пруд, мельницу и город без заданий. Кнопка ☀️/❄️ меняет время года.</span></li>
       <li><b>⌨️</b><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> или стрелки: ходить. <kbd>E</kbd> или <kbd>Пробел</kbd>: главное действие. <kbd>Q</kbd>: спрятаться или выйти. <kbd>B</kbd>: рюкзак. <kbd>H</kbd>: подсказка. <kbd>M</kbd>: звук. <kbd>Esc</kbd>: закрыть окно. В меню: <kbd>1</kbd>–<kbd>5</kbd> выбирают маршрут, <kbd>Enter</kbd> начинает или продолжает.</span></li>
+      <li><b>♟</b><span>Шахматы с компьютером (лёгкий уровень): кнопка «♟ Шахматы» на титульном экране или сядь за столик в ресторане «Бусы» и нажми «Сыграть в шахматы».</span></li>
       <li><b>💾</b><span>Прогресс сохраняется сам, в этом браузере.</span></li>
     </ul>
     <button id="helpClose" class="cta" style="margin-top:14px" type="button">Понятно, играем</button></div></div>
+  <div id="chessSheet" class="sheet hidden" style="z-index:15"><div class="sheetCard chessCard">
+    <h3>♟ Шахматы с компьютером <small>(лёгкий уровень)</small></h3>
+    <div id="chessStatus" class="chessStatus"></div>
+    <div id="chessBoard" class="chessBoard" aria-label="Шахматная доска"></div>
+    <div class="chessBtns"><button id="chessNew" class="abtn go" type="button">Новая партия</button><button id="chessClose" class="abtn" type="button">Закрыть</button></div>
+  </div></div>
   <div id="endCard" class="endCard hidden"><h2 id="endTitle"></h2><p id="endText"></p><div id="endBtns" class="ebtns"></div></div>
   <div id="vign"></div><div id="toast" class="toast"></div><div id="fade"></div><div id="err" class="err hidden"></div>
 </div></div>
@@ -1173,7 +1197,8 @@ function buildCritters(){const yg=roomGroups.yard,yc=grp(yg);yc.userData.critter
   perch('corridor',makeSleepCat('#E39A4B','#B86E2A'),-5.0,1.18,-1.65,0.5);
   perch('backhall',makeSleepCat('#3B3B40','#1F1F22'),5.6,0.97,2.83,0.3);
   const fc=perch('forge',makeCat('#F4F0E6','#8A8F96','#FFFFFF',false),3.4,1.2,0.1,0.7);fc.kind='perchsit';fc.t=4;
-  [['stalls',makeCat('#2A2A2E','#1A1A1D','#F7F4EE',false)],['storage',makeCat('#9A9DA3','#5F6369',null,true)]].forEach(([room,c])=>{
+  [['stalls',makeCat('#2A2A2E','#1A1A1D','#F7F4EE',false)],['storage',makeCat('#9A9DA3','#5F6369',null,true)],
+   ['stalls',makeCat('#E39A4B','#B86E2A','#FFFFFF',true)],['storage',makeCat('#F4F0E6','#8A8F96','#FFFFFF',false)]].forEach(([room,c])=>{
     const G=buildGrid(room,true),q=randomFree(G,critLim(ROOMS[room]),roomReach(room).ok)||freeNear(G,0,0,roomReach(room).ok);const g=grp(roomGroups[room]);g.userData.critter=true;g.add(c.g);
     c.g.position.set(q[0],0,q[1]);c.g.rotation.y=Math.random()*6;c.room=room;c.kind='roam';c.mode='sit';c.t=2+Math.random()*4;CRIT.cats.push(c);});}
 
@@ -1182,6 +1207,8 @@ function catPose(c,pose,t){const L=c.legs,b=c.body;
   if(pose==='sit'||pose==='groom'||pose==='watch'){b.rotation.x=-0.5;b.position.y=-0.04;L[0].rotation.x=0.5;L[1].rotation.x=0.5;L[2].rotation.x=1.25;L[3].rotation.x=1.25;
     c.tail.rotation.x=-2.1;c.tail.rotation.z=Math.sin(t*1.3+(c.ph||0))*0.25;
     if(pose==='groom'){c.head.rotation.x=0.95+Math.sin(t*8)*0.12;L[0].rotation.x=-0.5+Math.sin(t*8)*0.15;}else c.head.rotation.x=0.45;}
+  else if(pose==='lie'){const pl=c.mode==='play';b.rotation.x=0;b.position.y=0;L.forEach((l,k)=>l.rotation.x=Math.sin(t*(pl?9:1.4)+k*1.7)*(pl?0.9:0.12));
+    c.tail.rotation.x=-0.35;c.tail.rotation.z=Math.sin(t*(pl?7:2))*0.4;c.head.rotation.x=0;}
   else{const run=pose==='flee'||pose==='hunt',f=run?16:9,a=run?0.75:0.45;b.rotation.x=0;b.position.y=run?Math.abs(Math.sin(t*f))*0.03:0;
     [0,PI,PI,0].forEach((ph,k)=>L[k].rotation.x=Math.sin(t*f+ph)*a);c.tail.rotation.x=run?-1.2:-0.35;c.tail.rotation.z=Math.sin(t*3)*0.15;c.head.rotation.x=0;}}
 const _lv=new T.Vector3();
@@ -1210,7 +1237,21 @@ function updateBirds(dt,t,inGame){const bp=boy.g.position,wp=warden.g.position,w
       else if(r<0.55){b.face+=PI;b.hop=0.25;}else b.peck=0.6;}
     if(b.hop>0){b.hop-=dt;p.y=b.perch.p[1]+Math.sin((0.25-b.hop)/0.25*PI)*0.08;b.g.rotation.y=b.face-PI*Math.max(0,b.hop)/0.25;}else{p.y=b.perch.p[1];b.g.rotation.y=b.face;}
     if(b.peck>0){b.peck-=dt;b.head.rotation.x=Math.sin(b.peck*20)>0?0.8:0.1;}else if(b.sing>0){b.sing-=dt;b.head.rotation.x=-0.55;b.head.rotation.y=0;}else{b.head.rotation.x=0;b.head.rotation.y=Math.sin(t*0.7+b.ph)*0.6;}});}
+/* игра двух кошек: одна валяется на боку и спине и машет лапами, другая кружит вокруг неё */
+function endPlay(c){c.mode='sit';c.t=2+Math.random()*3;c.role=null;c.partner=null;c.playCd=18+Math.random()*20;c.g.position.y=0;}
+function catPlay(c,dt,t,G,inGame){const o=c.partner;c.pl-=dt;
+  if(!o||o.mode!=='play'||o.partner!==c||c.pl<=0){endPlay(c);return;}
+  const p=c.g.position,q=o.g.position;
+  if(c.role==='lie'){c.g.rotation.y-=angDiff(c.g.rotation.y,Math.atan2(q.x-p.x,q.z-p.z))*Math.min(1,dt*3);}
+  else{const a=t*1.7+(c.ph||0),tx=q.x+Math.cos(a)*0.75,tz=q.z+Math.sin(a)*0.75,dx=tx-p.x,dz=tz-p.z,L=Math.hypot(dx,dz);
+    if(L>0.05){const k=Math.min(1,2.2*dt/L),nx=p.x+dx*k,nz=p.z+dz*k;if(!navBlocked(G,nx,nz)){p.x=nx;p.z=nz;}}
+    c.g.rotation.y-=angDiff(c.g.rotation.y,Math.atan2(q.x-p.x,q.z-p.z))*Math.min(1,dt*6);p.y=Math.abs(Math.sin(t*9))*0.06;}
+  if(inGame&&Math.random()<dt*0.25)Snd.meow(0.022,0.28);}
 function updateRoamCat(c,dt,t,inGame){const R=ROOMS[c.room],G=navGrid(c.room),lim=critLim(R),p=c.g.position;c.t-=dt;
+  c.playCd=Math.max(0,(c.playCd||0)-dt);
+  {const pr=CRIT.cats.find(q=>q!==c&&q.room===c.room&&q.kind==='roam'),calm=m=>m==='sit'||m==='groom'||m==='lie'||m==='watch';
+   if(pr&&calm(c.mode)&&calm(pr.mode)&&!(c.playCd>0)&&!(pr.playCd>0)&&Math.hypot(pr.g.position.x-p.x,pr.g.position.z-p.z)<9&&Math.random()<dt*0.06){
+     c.mode=pr.mode='play';c.role='lie';pr.role='chase';c.pl=pr.pl=7+Math.random()*4;c.ls=Math.random()<0.5?1:-1;c.partner=pr;pr.partner=c;}}
   const bp=boy.g.position,wp=warden.g.position;
   const db=inGame&&S.room===c.room?Math.hypot(bp.x-p.x,bp.z-p.z):99,dw=warden.g.visible&&S&&S.w.room===c.room?Math.hypot(wp.x-p.x,wp.z-p.z):99;
   const moving=c.mode==='walk'||c.mode==='flee'||c.mode==='hunt';
@@ -1219,16 +1260,23 @@ function updateRoamCat(c,dt,t,inGame){const R=ROOMS[c.room],G=navGrid(c.room),li
   const m=CRIT.mice.find(q=>q.room===c.room&&q.g.visible&&!(q.wait>0));
   c.huntCd=Math.max(0,(c.huntCd||0)-dt);
   if(m&&c.mode!=='flee'&&c.mode!=='hunt'&&!(c.huntCd>0)&&Math.hypot(m.g.position.x-p.x,m.g.position.z-p.z)<6){c.mode='hunt';c.prey=m;if(inGame&&!(c.chatCd>t)){c.chatCd=t+8;Snd.chatter(0.035);}}
-  if(c.mode==='hunt'){const mp=c.prey.g.position;c.look=[mp.x,mp.z];
+  if(c.mode==='play')catPlay(c,dt,t,G,inGame);
+  else if(c.mode==='hunt'){const mp=c.prey.g.position;c.look=[mp.x,mp.z];
     if(!c.prey.g.visible){c.mode='watch';c.t=3+Math.random()*2;c.huntCd=4+Math.random()*3;}
     else{const dx=mp.x-p.x,dz=mp.z-p.z,L=Math.hypot(dx,dz);c.g.rotation.y=Math.atan2(dx,dz);
       if(L>0.35){const k=Math.min(1,2.4*dt/L),nx=p.x+dx*k,nz=p.z+dz*k;if(!navBlocked(G,nx,nz)){p.x=nx;p.z=nz;}else{c.mode='watch';c.t=3+Math.random()*2;c.huntCd=4+Math.random()*3;}}}}
   else if((c.mode==='walk'||c.mode==='flee')&&c.to){const dx=c.to[0]-p.x,dz=c.to[1]-p.z,L=Math.hypot(dx,dz),v=c.mode==='flee'?2.0:0.6;
     if(L<0.05){c.mode=Math.random()<0.3?'groom':'sit';c.t=2+Math.random()*4;c.to=null;}
     else{const k=Math.min(1,v*dt/L),nx=p.x+dx*k,nz=p.z+dz*k;if(c.free||!navBlocked(G,nx,nz)){p.x=nx;p.z=nz;c.g.rotation.y=Math.atan2(dx,dz);}else{c.mode='sit';c.t=1;c.to=null;}}}
-  else if(c.t<=0){if(c.mode==='groom'||c.mode==='watch'){c.mode='sit';c.t=2+Math.random()*3;}
+  else if(c.t<=0){if(c.mode==='groom'||c.mode==='watch'||c.mode==='lie'){c.mode='sit';c.t=2+Math.random()*3;}
+    else if(c.mode==='sit'&&Math.random()<0.28){c.mode='lie';c.ls=Math.random()<0.5?1:-1;c.back=Math.random()<0.45;c.t=4+Math.random()*5;}
     else{const q=critTarget(p,G,lim);if(q){c.mode='walk';c.to=q;c.free=false;}else c.t=1;}}
-  catPose(c,c.mode,t);
+  {const lying=c.mode==='lie'||(c.mode==='play'&&c.role==='lie'),
+     lt=!lying?0:(c.mode==='lie'?(c.back?PI:PI/2)*c.ls:c.ls*(PI/2+PI/2*(0.5+0.5*Math.sin(t*1.4))));
+   c.lz=(c.lz||0)+(lt-(c.lz||0))*Math.min(1,dt*4);
+   catPose(c,lying?'lie':(c.mode==='play'?'hunt':c.mode),t);if(c.mode!=='play')p.y=0;
+   const z=c.lz;c.body.rotation.z=z;
+   if(Math.abs(z)>0.01){const a=Math.abs(z);c.body.position.x=0.3*Math.sin(z);c.body.position.y=(a<PI/2?0.3-0.15*Math.sin(a):0.15)-0.3*Math.cos(z);}else c.body.position.x=0;}
   if(c.mode==='sit'||c.mode==='watch'){const tgt=c.mode==='watch'&&c.look?c.look:(db<3.5?[bp.x,bp.z]:null);
     c.head.rotation.y=tgt?lookAt(c,tgt[0],tgt[1],false):Math.sin(t*0.5+(c.ph||0))*0.5;}else c.head.rotation.y=0;}
 function updatePerchCat(c,dt,t,inGame){const bp=boy.g.position;c.g.updateMatrixWorld();_lv.set(0,0,0);c.g.localToWorld(_lv);
@@ -1818,7 +1866,9 @@ function makeFisher(){const g=new T.Group(),skin=toon(P.skin),jk=toon('#4E6B3A')
   const head=grp(body,0,0.92,0);add(head,sph(0.31,18,14),skin,0,0.16,0);const bd=add(head,sph(0.22,12,10),toon('#9A8A78'),0,0.02,0.15);bd.scale.set(1,0.8,0.7);
   [-0.11,0.11].forEach(dx=>nol(add(head,sph(0.04,8,6),toon(P.dark),dx,0.22,0.29)));
   add(head,cyl(0.44,0.44,0.04,18),hat,0,0.4,0);add(head,cyl(0.25,0.29,0.22,16),hat,0,0.52,0);nol(add(head,cyl(0.295,0.295,0.05,16),toon('#6E5233'),0,0.46,0));
-  outline(g,0.03);return {g,legL,legR,armL,armR,body,head};}
+  const pipe=grp(head,0,0,0);pipe.visible=false;{const pb=toon('#5A3A24'),pd=toon('#3A2418');
+    add(pipe,cyl(0.014,0.014,0.2,6),pb,0.06,0.05,0.4,PI/2,0,0);add(pipe,cyl(0.05,0.04,0.1,10),pd,0.06,0.1,0.52);nol(add(pipe,sph(0.03,6,5),basic('#FF8A3D'),0.06,0.155,0.52));}
+  outline(g,0.03);return {g,legL,legR,armL,armR,body,head,pipe};}
 function fisherman(par,x,z){const F={x,z,st:'wait',t:5,catch:0,miss:0,nib:0};WL.fisher=F;
   const st=grp(par,x,0,z);add(st,box(0.5,0.06,0.42),toon('#3E6B8A'),0,0.45,0);[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{const l=add(st,box(0.03,0.5,0.03),toon(P.steel),a*0.2,0.22,b*0.16);l.rotation.z=a*0.15;});
   const M=makeFisher();M.g.position.set(x,0,z);M.g.rotation.y=PI;par.add(M.g);F.m=M;[M.armL,M.armR].forEach(a=>a.rotation.x=-1.05);
@@ -1834,8 +1884,14 @@ function fisherman(par,x,z){const F={x,z,st:'wait',t:5,catch:0,miss:0,nib:0};WL.
   const lb=label('🐟 Поймал!',{h:0.34,bg:'rgba(242,193,78,0.97)'});lb.position.set(x,2.15,z);lb.visible=false;par.add(lb);F.lbYes=lb;
   const ln=label('Сорвалась…',{h:0.3}),q=ln;q.position.set(x,2.15,z);q.visible=false;par.add(q);F.lbNo=ln;
   return F;}
-const _ft=new T.Vector3();
+const _ft=new T.Vector3(),_fp=new T.Vector3();
 function updFisher(dt,t,here,bp){const F=WL.fisher;if(!F)return;const B=F.bob,b=B.position;F.t-=dt;
+  /* иногда достаёт трубку и курит, пока ждёт поклёвку */
+  {const M=F.m;if(F.st==='wait'&&!(F.smoke>0)){F.smkT=(F.smkT==null?9+Math.random()*8:F.smkT)-dt;if(F.smkT<=0&&F.t>5.5){F.smoke=4.8;F.smkP=0;}}
+   if(F.smoke>0){if(F.st!=='wait')F.smoke=0;else{F.smoke-=dt;const u=Math.max(0,Math.min(1,(4.8-F.smoke)/0.5,F.smoke/0.5));
+      M.pipe.visible=true;M.armL.rotation.set(-1.05-1.3*u,0,0.45*u);F.smkP-=dt;
+      if(F.smkP<=0&&u>0.9){F.smkP=0.6;if(here){_fp.set(0.06,0.2,0.55);M.pipe.localToWorld(_fp);puff('pond',[_fp.x,_fp.y,_fp.z],0);}}}}
+   if(!(F.smoke>0)&&M.pipe.visible){M.pipe.visible=false;M.armL.rotation.set(-1.05,0,0);F.smkT=14+Math.random()*16;F.smoke=0;}}
   F.tilt.updateMatrixWorld(true);_ft.set(0,0,2.6);F.tilt.localToWorld(_ft);const par=F.m.g.parent;par.worldToLocal(_ft);
   const near=here&&Math.hypot(bp.x-F.x,bp.z-F.z)<9,v=near?vd({x:F.x,z:F.z},bp,0.04):0;
   if(F.st==='wait'){b.set(F.bp[0],0.08+Math.sin(t*2)*0.006-(F.nib>0?0.03:0),F.bp[1]);F.nib-=dt;if(F.nib<-1&&Math.random()<dt*0.4)F.nib=0.15;
@@ -2603,10 +2659,10 @@ function enterRoom(){setRoomVisible(S.room);refresh();if(wardenRoom()===S.room)t
 /* ---------- ходьба и действия ---------- */
 function walkTo(x,z,cb,hop){const R=ROOMS[S.room];x=clamp(x,-R.w/2+0.45,R.w/2-0.35);z=clamp(z,-R.d/2+0.45,R.d/2-0.3);
   if(S.hidden){S.hidden=false;renderPlay();}const p=boy.g.position;walk={pts:navPath(S.room,p.x,p.z,x,z,hop),cb};}
-function act(h){if(!S||S.over||S.cut)return;if(S.ride)return;if(S.boat&&h.kind!=='dock'&&h.kind!=='shore')return;if(S.sit&&h.kind!=='stand')standUp();S.harv=null;const x=h.pos[0],z=h.pos[1];
+function act(h){if(!S||S.over||S.cut)return;if(S.ride)return;if(S.boat&&h.kind!=='dock'&&h.kind!=='shore')return;if(S.sit&&h.kind!=='stand'&&h.kind!=='chess')standUp();S.harv=null;const x=h.pos[0],z=h.pos[1];
   if(h.kind==='item')walkTo(x,z,()=>take(h.key),1.0);
   else if(h.kind==='exit')walkTo(x,z,()=>goRoom(h.key,h.back),1.4);
-  else if(h.kind==='seat')sitGo(SEATS[h.seat]);else if(h.kind==='stand')standUp();else if(h.kind==='harvest')harvestGo(GARDEN.beds[h.bed]);else if(h.kind==='feed')feedHare();
+  else if(h.kind==='seat')sitGo(SEATS[h.seat]);else if(h.kind==='stand')standUp();else if(h.kind==='harvest')harvestGo(GARDEN.beds[h.bed]);else if(h.kind==='feed')feedHare();else if(h.kind==='chess'){if(window.__chessOpen)window.__chessOpen();}
   else if(h.kind==='boat')boatGo();else if(h.kind==='ride')rideGo();else if(h.kind==='dock')dockPier();else if(h.kind==='shore')dockShore();
   else if(h.kind==='hide')walkTo(x,z,()=>hide(h.cover),2.8);
   else if(h.kind==='anchor')walkTo(x,z,()=>tryAt(h.key),1.2);}
@@ -2713,7 +2769,18 @@ function animWarden(t){if(!warden.g.visible)return;
 function animHorse(h,t,i){const w=h.walking;h.legs.forEach((l,k)=>{l.rotation.x=w?Math.sin(t*9+(k%2?PI:0)+(k>1?PI/2:0))*0.5:0;});
   h.neck.rotation.x=h.graze?1.25+Math.sin(t*0.8+i)*0.08:0.55+Math.sin(t*1.3+i*1.7)*0.05+(w?Math.sin(t*9)*0.04:0);
   h.tail.rotation.z=Math.sin(t*1.6+i)*0.25;h.body.position.y=1.08+(w?Math.abs(Math.sin(t*9))*0.04:0);}
-function animateAll(dt,t){animHuman(boy,t,boy.moving,9);boy.body.rotation.x=0;if(S&&S.boat)boatPose(t);if(S&&S.ride)ridePose(t);if(S&&S.sit)sitPose(t);if(S&&S.harv)harvPose(t);if(S&&S.feed){boy.body.rotation.x=0.35;boy.armR.rotation.set(-1.2,0,0);}boy.g.scale.y=(S&&S.hidden)?0.72:1;
+/* если мальчик долго стоит без дела, он иногда боксирует с тенью */
+const BOX={idle:0,next:8+Math.random()*6,on:false,t:0,dur:4,k:0};
+function boxUpdate(dt,t){const idle=!!(S&&!S.over&&!S.cut&&!boy.moving&&!walk&&!S.hidden&&!S.sit&&!S.boat&&!S.ride&&!S.harv&&!S.feed&&!kbdDir());
+  if(!idle){BOX.idle=0;BOX.on=false;return;}
+  if(!BOX.on){BOX.idle+=dt;if(BOX.idle<BOX.next)return;BOX.on=true;BOX.t=0;BOX.dur=3.6+Math.random()*2.4;BOX.k=-1;}
+  BOX.t+=dt;if(BOX.t>BOX.dur){BOX.on=false;BOX.idle=0;BOX.next=10+Math.random()*10;return;}
+  const u=BOX.t,fade=Math.min(1,u/0.35,(BOX.dur-u)/0.35),ph=u*8.5,s=Math.sin(ph),pl=Math.max(0,s),pr=Math.max(0,-s);
+  boy.legL.rotation.set(0.3*fade,0,0);boy.legR.rotation.set(-0.25*fade,0,0);
+  boy.body.rotation.y=-0.3*s*fade;boy.body.rotation.x=0.14*fade;boy.body.position.y=boy.by-0.05*fade+Math.abs(Math.sin(u*4.25))*0.04*fade;
+  boy.armL.rotation.set(-(1.05+0.5*pl)*fade,0,0.5*(1-pl)*fade);boy.armR.rotation.set(-(1.05+0.5*pr)*fade,0,-0.5*(1-pr)*fade);
+  const k=Math.floor(ph/PI);if(k!==BOX.k){BOX.k=k;if(Snd.ctx)Snd.sweep(520,180,0.07,'triangle',0.012);}}
+function animateAll(dt,t){animHuman(boy,t,boy.moving,9);boy.body.rotation.x=0;boy.body.rotation.y=0;if(S&&S.boat)boatPose(t);if(S&&S.ride)ridePose(t);if(S&&S.sit)sitPose(t);if(S&&S.harv)harvPose(t);if(S&&S.feed){boy.body.rotation.x=0.35;boy.armR.rotation.set(-1.2,0,0);}boxUpdate(dt,t);boy.g.scale.y=(S&&S.hidden)?0.72:1;
   if(!S){boy.armR.rotation.set(0,0,0.6+Math.sin(t*5)*0.5);}
   animWarden(t);HORSES.forEach((h,i)=>{if(h.g.visible)animHorse(h,t,i);});
   if(itemsG)itemsG.children.forEach(m=>{if(m.userData.bob){m.position.y=0.06+Math.sin(t*2.2+m.userData.bob)*0.05;m.rotation.y+=dt*0.6;
@@ -2775,13 +2842,14 @@ function renderActs(){if(!S)return;const a=$('acts'),R=ROOMS[S.room],st=curStep(
   else if(!WINTER&&!S.cut&&!S.over&&S.room==='pond'&&WL.boat&&Math.hypot(p.x-WL.boat.x,p.z-WL.boat.z)<3.4)list.unshift({t:'🛶 Сесть в лодку',c:'go',h:{kind:'boat',pos:[+WL.boat.x.toFixed(1),+WL.boat.z.toFixed(1)]}});
   if(WINTER&&!S.ride&&!S.boat&&!S.cut&&!S.over&&S.room==='pond'&&(Math.hypot(p.x-HILL.sx,p.z-3.9)<3.6||Math.hypot(p.x-HILL.pile[0],p.z-HILL.pile[1])<3.4))list.unshift({t:'🛝 Скатиться на ватрушке',c:'go',h:{kind:'ride',pos:[HILL.sx,3.75]}});
   if(S.ride)list.length=0;
-  if(S.sit){list.length=0;list.push({t:'🧍 Встать',c:'',h:{kind:'stand',pos:[+S.sit.s.p[0].toFixed(1),+S.sit.s.p[2].toFixed(1)]}});}
+  if(S.sit){list.length=0;list.push({t:'🧍 Встать',c:'',h:{kind:'stand',pos:[+S.sit.s.p[0].toFixed(1),+S.sit.s.p[2].toFixed(1)]}});
+    if(S.sit.s.kind==='rest')list.push({t:'♟ Сыграть в шахматы',c:'go',h:{kind:'chess',pos:[0,0]}});}
   else if(S.harv)list.length=0;
   else if(!S.cut&&!S.over&&!S.boat&&!S.ride){const sn=seatNear(p,2.2);if(sn)list.push({t:sn.kind==='rest'?'🍽 Сесть за столик':'🪑 Присесть',c:'go',h:{kind:'seat',pos:sn.stand.map(v=>+v.toFixed(1)),seat:SEATS.indexOf(sn)}});
     const bd=!WINTER&&bedNear(p,1.9);if(bd)list.unshift({t:VEG[bd.kind].e+' Собрать урожай',c:'go',h:{kind:'harvest',pos:[bd.x,bd.z],bed:GARDEN.beds.indexOf(bd)}});
     if(basketTotal()>0&&!S.feed&&hareNear(p,5.5))list.unshift({t:'🐰 Угостить зайчика',c:'go',h:{kind:'feed',pos:[0,0]}});}
   const kOf=x=>x.t+'|'+x.c+'|'+(x.h?x.h.pos.join(','):''),key=list.map(kOf).join('#');if(key===actKey)return;actKey=key;
-  const slotOf=x=>x.h?({anchor:'a',item:'i',exit:'p',hide:'h',boat:'a',dock:'p',shore:'h',ride:'a',seat:'s',stand:'s',harvest:'a',feed:'a'})[x.h.kind]:'h';let ref=null;
+  const slotOf=x=>x.h?({anchor:'a',item:'i',exit:'p',hide:'h',boat:'a',dock:'p',shore:'h',ride:'a',seat:'s',stand:'s',harvest:'a',feed:'a',chess:'a'})[x.h.kind]:'h';let ref=null;
   for(let n=ACT_SLOTS.length-1;n>=0;n--){const sl=ACT_SLOTS[n],x=list.find(e=>slotOf(e)===sl),k=x?kOf(x):'',old=ACT_EL[sl];
     if(old&&old._k===k&&old.parentNode===a){old.onclick=x.f||(()=>act(x.h));ref=old;continue;}
     if(old&&old.parentNode===a)a.removeChild(old);ACT_EL[sl]=null;
@@ -2848,7 +2916,7 @@ $('helpSheet').onclick=e=>{if(e.target===$('helpSheet'))closeHelp();};
 const KEYS={},KMAP={ArrowUp:'u',KeyW:'u',ArrowDown:'d',KeyS:'d',ArrowLeft:'l',KeyA:'l',ArrowRight:'r',KeyD:'r'};
 function kbdDir(){const sx=(KEYS.r?1:0)-(KEYS.l?1:0),sy=(KEYS.u?1:0)-(KEYS.d?1:0);if(!sx&&!sy)return null;
   const q=fromScr(sx,sy,0),L=Math.hypot(q[0],q[1])||1;return[q[0]/L,q[1]/L];}
-function updateKbd(dt){const d=kbdDir();if(!d||!S||S.over||S.cut||S.boat||S.ride||!$('bagSheet').classList.contains('hidden')||!$('helpSheet').classList.contains('hidden'))return;
+function updateKbd(dt){const d=kbdDir();if(!d||!S||S.over||S.cut||S.boat||S.ride||!$('bagSheet').classList.contains('hidden')||!$('helpSheet').classList.contains('hidden')||!$('chessSheet').classList.contains('hidden'))return;
   if(S.sit)standUp();S.harv=null;if(S.hidden){S.hidden=false;renderPlay();}walk=null;
   const p=boy.g.position,G=navGrid(S.room),st=3.4*dt,stuck=navBlocked(G,p.x,p.z);let nx=p.x+d[0]*st,nz=p.z+d[1]*st;
   if(!stuck&&navBlocked(G,nx,nz)){if(!navBlocked(G,nx,p.z))nz=p.z;else if(!navBlocked(G,p.x,nz))nx=p.x;else return;}
@@ -2856,6 +2924,7 @@ function updateKbd(dt){const d=kbdDir();if(!d||!S||S.over||S.cut||S.boat||S.ride
 function primaryAct(){const e=ACT_EL;return[e.a&&e.a.classList.contains('go')?e.a:null,e.i,e.p,e.a,e.s].find(Boolean)||null;}
 document.addEventListener('keydown',ev=>{if(ev.ctrlKey||ev.metaKey||ev.altKey)return;const c=ev.code,onBtn=ev.target&&ev.target.tagName==='BUTTON';Snd.init();
   const help=!$('helpSheet').classList.contains('hidden'),bag=!$('bagSheet').classList.contains('hidden');
+  if(!$('chessSheet').classList.contains('hidden')){if(c==='Escape')$('chessClose').click();return;}
   if(c==='Escape'){if(help)closeHelp();else if(bag)$('bagSheet').classList.add('hidden');return;}
   if(help){if((c==='Enter'||c==='Space')&&!onBtn){closeHelp();ev.preventDefault();}return;}
   if(KMAP[c]){KEYS[KMAP[c]]=true;ev.preventDefault();return;}
@@ -2896,9 +2965,120 @@ window.__pobeg={ROUTES,ROOMS,MODES,START_ROOM,WROOM,
   cam:()=>camera,critters:()=>CRIT,winter:{setWinter,startRide,rideGo,isWinter:()=>WINTER,WIN,HILL,hillY,tubesHome},inter:{SEATS,GARDEN,sitDown,standUp,harvestGo,feedHare,seatNear,bedNear,hareNear,basketTotal},walkApi:{boardBoat,boatTap,dockShore,dockPier,goRoom,updateBoat,boatRoute,boatFree},walkLife:()=>WL,startWalk,inPond,WALK_MODE,snd:()=>Snd,itemFx:()=>ITEMFX,pickNdc:(x,y)=>{ndc.set(x,y);ray.setFromCamera(ndc,camera);return pickHot();},boyObj:()=>boy,view:()=>VIEW,navPath,navGrid,buildGrid,navBlocked,navLos,walkTo,walkState:()=>walk,
   wardenObj:()=>warden,roomGroup:id=>roomGroups[id],freeNear,
   back:()=>{const b=$('bagSheet');if(!b.classList.contains('hidden')){b.classList.add('hidden');return 'sheet';}if(S){showTitle();return 'menu';}return 'exit';},
-  putWarden:st=>{const w=S.w;w.state=st;w.room=WROOM[st];const p=ROOMS[w.room].wardenAt;w.x=p[0];w.z=p[1];w.mode='dwell';w.timer=999;w.path=[];placeWarden();},goRoom,caught,loop,act};
+  putWarden:st=>{const w=S.w;w.state=st;w.room=WROOM[st];const p=ROOMS[w.room].wardenAt;w.x=p[0];w.z=p[1];w.mode='dwell';w.timer=999;w.path=[];placeWarden();},goRoom,caught,loop,act,
+  fx:{smoke:()=>{const F=WL.fisher;F.st='wait';F.t=12;F.smkT=0;F.smoke=0;},box:()=>{BOX.idle=0;BOX.next=0;},
+    cats:()=>{const L=CRIT.cats.filter(q=>q.kind==='roam'&&q.room===S.room);if(L.length>1){const a=L[0],b=L[1];a.mode=b.mode='play';a.role='lie';b.role='chase';a.pl=b.pl=8;a.ls=1;a.partner=b;b.partner=a;}return L.length;},
+    lie:()=>{const c=CRIT.cats.find(q=>q.kind==='roam'&&q.room===S.room);if(c){c.mode='lie';c.ls=1;c.back=true;c.t=6;}return !!c;}}};
 const fontsReady=(document.fonts&&document.fonts.ready)?Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,1500))]):Promise.resolve();
 fontsReady.then(boot).catch(e=>showErr(e.message));
+})();
+</script>
+<script>
+(function(){
+"use strict";
+/*ENGINE*/
+var ALLPROMO=false;
+var KN=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]],KG=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]],
+  DI=[[1,1],[1,-1],[-1,1],[-1,-1]],RO=[[1,0],[-1,0],[0,1],[0,-1]];
+function isW(p){return p===p.toUpperCase();}
+function colOf(p){return p?(isW(p)?'w':'b'):'';}
+function opp(s){return s==='w'?'b':'w';}
+function inB(r,c){return r>=0&&r<8&&c>=0&&c<8;}
+/* бьёт ли сторона by поле sq */
+function att(b,sq,by){var r=sq>>3,c=sq&7,sp=function(ch){return by==='w'?ch.toUpperCase():ch;},k,d,rr,cc,p,i;
+  var pr=by==='w'?r+1:r-1;
+  for(i=-1;i<=1;i+=2){cc=c+i;if(inB(pr,cc)&&b[pr*8+cc]===sp('p'))return true;}
+  for(k=0;k<8;k++){rr=r+KN[k][0];cc=c+KN[k][1];if(inB(rr,cc)&&b[rr*8+cc]===sp('n'))return true;}
+  for(k=0;k<8;k++){rr=r+KG[k][0];cc=c+KG[k][1];if(inB(rr,cc)&&b[rr*8+cc]===sp('k'))return true;}
+  for(k=0;k<4;k++){d=DI[k];rr=r+d[0];cc=c+d[1];while(inB(rr,cc)){p=b[rr*8+cc];if(p){if(p===sp('b')||p===sp('q'))return true;break;}rr+=d[0];cc+=d[1];}}
+  for(k=0;k<4;k++){d=RO[k];rr=r+d[0];cc=c+d[1];while(inB(rr,cc)){p=b[rr*8+cc];if(p){if(p===sp('r')||p===sp('q'))return true;break;}rr+=d[0];cc+=d[1];}}
+  return false;}
+/* ходы без проверки на шах своему королю */
+function pseudo(b,s,cr,ep){var out=[],i,k,r,c,p,t,rr,cc,q,d,to,promo=ALLPROMO?['q','r','b','n']:['q'];
+  function push(f,to,x){var m={f:f,t:to};if(x)for(var z in x)m[z]=x[z];out.push(m);}
+  for(i=0;i<64;i++){p=b[i];if(!p||colOf(p)!==s)continue;r=i>>3;c=i&7;t=p.toLowerCase();
+    if(t==='p'){d=s==='w'?-1:1;var st=s==='w'?6:1,pe=s==='w'?0:7;rr=r+d;
+      if(inB(rr,c)&&!b[rr*8+c]){if(rr===pe)promo.forEach(function(x){push(i,rr*8+c,{q:x});});else{push(i,rr*8+c);
+        if(r===st&&!b[(rr+d)*8+c])push(i,(rr+d)*8+c,{dp:1});}}
+      for(k=-1;k<=1;k+=2){cc=c+k;if(!inB(rr,cc))continue;to=rr*8+cc;q=b[to];
+        if(q&&colOf(q)!==s){if(rr===pe)promo.forEach(function(x){push(i,to,{q:x});});else push(i,to);}
+        else if(!q&&to===ep)push(i,to,{ep:1});}}
+    else if(t==='n'||t==='k'){var L=t==='n'?KN:KG;
+      for(k=0;k<8;k++){rr=r+L[k][0];cc=c+L[k][1];if(!inB(rr,cc))continue;q=b[rr*8+cc];if(!q||colOf(q)!==s)push(i,rr*8+cc);}
+      if(t==='k'){var base=s==='w'?56:0,o=opp(s);
+        if(i===base+4&&!att(b,i,o)){
+          if(cr[s==='w'?'K':'k']&&b[base+7]===(s==='w'?'R':'r')&&!b[base+5]&&!b[base+6]&&!att(b,base+5,o)&&!att(b,base+6,o))push(i,base+6,{cs:1});
+          if(cr[s==='w'?'Q':'q']&&b[base]===(s==='w'?'R':'r')&&!b[base+1]&&!b[base+2]&&!b[base+3]&&!att(b,base+3,o)&&!att(b,base+2,o))push(i,base+2,{cs:1});}}}
+    else{var dirs=t==='b'?DI:t==='r'?RO:DI.concat(RO);
+      for(k=0;k<dirs.length;k++){d=dirs[k];rr=r+d[0];cc=c+d[1];
+        while(inB(rr,cc)){q=b[rr*8+cc];if(!q)push(i,rr*8+cc);else{if(colOf(q)!==s)push(i,rr*8+cc);break;}rr+=d[0];cc+=d[1];}}}}
+  return out;}
+function applyMove(b,m){var nb=b.slice(),p=nb[m.f];nb[m.t]=m.q?(isW(p)?m.q.toUpperCase():m.q):p;nb[m.f]='';
+  if(m.ep)nb[(m.f>>3)*8+(m.t&7)]='';
+  if(m.cs){if(m.t>m.f){nb[m.f+1]=nb[m.f+3];nb[m.f+3]='';}else{nb[m.f-1]=nb[m.f-4];nb[m.f-4]='';}}
+  return nb;}
+function kingSq(b,s){return b.indexOf(s==='w'?'K':'k');}
+function inCheck(b,s){var k=kingSq(b,s);return k>=0&&att(b,k,opp(s));}
+function legal(b,s,cr,ep){return pseudo(b,s,cr,ep).filter(function(m){var nb=applyMove(b,m),k=kingSq(nb,s);return k>=0&&!att(nb,k,opp(s));});}
+function nextRights(cr,m,p){var n={K:cr.K,Q:cr.Q,k:cr.k,q:cr.q};if(p==='K'){n.K=0;n.Q=0;}if(p==='k'){n.k=0;n.q=0;}
+  [m.f,m.t].forEach(function(sq){if(sq===63)n.K=0;if(sq===56)n.Q=0;if(sq===7)n.k=0;if(sq===0)n.q=0;});return n;}
+function epAfter(m){return m.dp?(m.f+m.t)/2:-1;}
+function fromFen(placement){var B=[];placement.split('/').forEach(function(row){for(var i=0;i<row.length;i++){var ch=row[i];
+  if(/\d/.test(ch))for(var j=0;j<+ch;j++)B.push('');else B.push(ch);}});return B;}
+function perft(b,s,cr,ep,d){if(d===0)return 1;var L=legal(b,s,cr,ep),n=0;
+  for(var i=0;i<L.length;i++){var m=L[i];n+=perft(applyMove(b,m),opp(s),nextRights(cr,m,b[m.f]),epAfter(m),d-1);}return n;}
+function insufficient(b){var rest=b.filter(function(p){return p&&p.toLowerCase()!=='k';});
+  return rest.length===0||(rest.length===1&&/[nb]/i.test(rest[0]));}
+/*ENDENGINE*/
+if(typeof document==='undefined'){return {ALLPROMO:function(v){ALLPROMO=v;},fromFen:fromFen,perft:perft,legal:legal,applyMove:applyMove,inCheck:inCheck,nextRights:nextRights,epAfter:epAfter};}
+
+var $=function(id){return document.getElementById(id);};
+var START='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',KEY='pobeg.chess';
+var GL={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+var B,turn,cr,ep,half,over,sel,moves,last,gid=0;
+function newGame(){B=fromFen(START);turn='w';cr={K:1,Q:1,k:1,q:1};ep=-1;half=0;over=null;sel=-1;moves=[];last=null;gid++;save();render();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({B:B,turn:turn,cr:cr,ep:ep,half:half,over:over,last:last}));}catch(e){}}
+function load(){try{var j=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(j&&Array.isArray(j.B)&&j.B.length===64&&j.cr&&!j.over&&j.B.indexOf('K')>=0&&j.B.indexOf('k')>=0){B=j.B;turn=j.turn==='b'?'b':'w';cr=j.cr;ep=j.ep;half=j.half|0;over=null;sel=-1;moves=[];last=j.last||null;gid++;return true;}}catch(e){}return false;}
+function endCheck(){var L=legal(B,turn,cr,ep);
+  if(!L.length)over=inCheck(B,turn)?(turn==='b'?'win':'lose'):'stalemate';
+  else if(half>=100||insufficient(B))over='draw';}
+function play(m){var p=B[m.f],cap=B[m.t]||m.ep;half=(p.toLowerCase()==='p'||cap)?0:half+1;cr=nextRights(cr,m,p);ep=epAfter(m);
+  B=applyMove(B,m);last=[m.f,m.t];turn=opp(turn);sel=-1;moves=[];endCheck();save();render();
+  if(!over&&turn==='b'){var g=gid;setTimeout(function(){if(g===gid)cpu();},600);}}
+/* лёгкий уровень: часто случайный ход, иначе жадно берёт фигуры; мат в один ход замечает не всегда */
+function cpu(){if(over||turn!=='b')return;var L=legal(B,'b',cr,ep);if(!L.length)return;
+  var V={p:1,n:3,b:3,r:5,q:9,k:0},pick,rnd=function(a){return a[(Math.random()*a.length)|0];};
+  var mates=L.filter(function(m){var nb=applyMove(B,m);return inCheck(nb,'w')&&legal(nb,'w',nextRights(cr,m,B[m.f]),epAfter(m)).length===0;});
+  if(mates.length&&Math.random()<0.7)pick=rnd(mates);
+  else if(Math.random()<0.4)pick=rnd(L);
+  else{var best=-1;L.forEach(function(m){var cp=B[m.t]?V[B[m.t].toLowerCase()]:(m.ep?1:0),sc=cp+(m.q?8:0)+Math.random()*1.5;if(sc>best){best=sc;pick=m;}});}
+  play(pick);}
+function statusText(){if(over==='win')return 'Мат. Вы выиграли!';if(over==='lose')return 'Мат. Компьютер выиграл.';
+  if(over==='stalemate')return 'Пат. Ничья.';if(over==='draw')return 'Ничья.';
+  if(turn==='b')return 'Компьютер думает…';return inCheck(B,'w')?'Шах! Ваш ход.':'Ваш ход (белые).';}
+function render(){var el=$('chessBoard'),h='',i,r,c,p,cls,kS=-1;
+  if(!over&&inCheck(B,turn))kS=kingSq(B,turn);
+  for(i=0;i<64;i++){r=i>>3;c=i&7;p=B[i];cls='cq'+((r+c)%2?' d':'');
+    if(last&&(i===last[0]||i===last[1]))cls+=' last';if(i===sel)cls+=' sel';if(i===kS)cls+=' chk';
+    var mv=moves.some(function(m){return m.t===i;});if(mv)cls+=' mv'+(p||moves.some(function(m){return m.t===i&&m.ep;})?' cap':'');
+    h+='<button type="button" class="'+cls+'" data-i="'+i+'" aria-label="'+'abcdefgh'[c]+(8-r)+(p?' '+p:'')+'">'+(p?'<span class="cp '+(isW(p)?'w':'b')+'">'+GL[p.toLowerCase()]+'︎</span>':'')+'</button>';}
+  el.innerHTML=h;$('chessStatus').textContent=statusText();}
+function click(i){if(over||turn!=='w')return;var p=B[i];
+  if(sel>=0){var m=moves.filter(function(x){return x.t===i;})[0];if(m){play(m);return;}}
+  if(p&&colOf(p)==='w'){sel=i;moves=legal(B,'w',cr,ep).filter(function(x){return x.f===i;});
+    /* превращение пешки всегда в ферзя: один ход на пару вариантов */
+    var seen={};moves=moves.filter(function(x){var k=x.t;if(seen[k])return false;seen[k]=1;return true;});}
+  else{sel=-1;moves=[];}
+  render();}
+$('chessBoard').addEventListener('click',function(e){var b=e.target.closest?e.target.closest('.cq'):null;if(b)click(+b.getAttribute('data-i'));});
+function open(){$('chessSheet').classList.remove('hidden');
+  if(!B){if(!load())newGame();else{render();if(turn==='b'){var g=gid;setTimeout(function(){if(g===gid)cpu();},600);}}}else render();}
+$('chessNew').onclick=newGame;
+$('chessClose').onclick=function(){$('chessSheet').classList.add('hidden');};
+$('chessSheet').addEventListener('click',function(e){if(e.target===$('chessSheet'))$('chessClose').click();});
+if($('chessBtn'))$('chessBtn').onclick=open;
+window.__chessOpen=open;
 })();
 </script>
 </body>
