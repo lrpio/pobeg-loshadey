@@ -13,7 +13,7 @@ W=$(mktemp -d); trap 'rm -rf "$W"' EXIT
 unzip -q "$OLD" -d "$W/app"
 rm -rf "$W/app/META-INF"
 cp "$HERE/index.html" "$W/app/assets/index.html"
-(cd "$W/app" && zip -qr -X "$W/unsigned.apk" AndroidManifest.xml resources.arsc classes.dex assets res)
+(cd "$W/app" && zip -q -X -0 "$W/unsigned.apk" resources.arsc && zip -qr -X "$W/unsigned.apk" AndroidManifest.xml classes.dex assets res)
 zipalign -f -p 4 "$W/unsigned.apk" "$W/aligned.apk"
 apksigner sign --ks "$KEY" --ks-key-alias "$ALIAS" --out "$OUT" "$W/aligned.apk"
 apksigner verify "$OUT" && echo "Готово: $OUT"
