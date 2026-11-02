@@ -190,6 +190,7 @@ button:focus-visible{outline:3px solid var(--hay-line);outline-offset:2px}
       <li><b>👁</b><span>Следи за шкалой смотрительницы. Если она в комнате, спрячься 🙈 или уйди в другую комнату. Если заметит, прогресс не пропадёт: продолжишь с последнего шага.</span></li>
       <li><b>💡</b><span>Подсказки зависят от сложности. «Практика» без штрафов, «Найт Мэр» с одной попыткой.</span></li>
       <li><b>🌿</b><span>«Погулять» открывает пруд, мельницу и город без заданий. Кнопка ☀️/❄️ меняет время года.</span></li>
+      <li><b>🎣</b><span>У пруда можно присесть рядом с рыбаком и порыбачить. Когда поплавок нырнёт и появится «Клюёт!», жми «Подсечь». Слишком рано рыба испугается.</span></li>
       <li><b>⌨️</b><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> или стрелки: ходить. <kbd>E</kbd> или <kbd>Пробел</kbd>: главное действие. <kbd>Q</kbd>: спрятаться или выйти. <kbd>B</kbd>: рюкзак. <kbd>H</kbd>: подсказка. <kbd>M</kbd>: звук. <kbd>Esc</kbd>: закрыть окно. В меню: <kbd>1</kbd>–<kbd>5</kbd> выбирают маршрут, <kbd>Enter</kbd> начинает или продолжает.</span></li>
       <li><b>♟</b><span>Шахматы с компьютером (лёгкий уровень): кнопка «♟ Шахматы» на титульном экране или сядь за столик в ресторане «Бусы» и нажми «Сыграть в шахматы».</span></li>
       <li><b>🏃</b><span>Платформер с главным героем: кнопка «🏃 Платформер» на титульном экране. Три уровня на выбор: беги, прыгай, собирай морковки, прыгай на мышей сверху и добегай до двери конюшни.</span></li>
@@ -1923,12 +1924,69 @@ function updFisher(dt,t,here,bp){const F=WL.fisher;if(!F)return;const B=F.bob,b=
     if(F.fish){const k=Math.max(0,(u-0.6)/0.4),s=[F.x+0.12,1.35,F.z-0.75],e=[F.bucket[0],0.42,F.bucket[1]];F.fish.g.position.set(s[0]+(e[0]-s[0])*k,s[1]+(e[1]-s[1])*k+Math.sin(k*PI)*0.3,s[2]+(e[2]-s[2])*k);
       F.fish.g.rotation.z=Math.sin(t*20)*0.6*(1-k);}
     if(F.t<=0){if(F.fish){F.fish.g.parent.remove(F.fish.g);F.fish=null;F.inB.forEach((g,i)=>g.visible=i<Math.min(3,F.catch));}
-      F.lbYes.visible=F.lbNo.visible=false;F.st='cast';F.t=0.9;F.m.armL.rotation.x=-1.05;F.bp=WINTER?F.home.slice():[F.home[0]+(Math.random()-0.5)*0.8,F.home[1]+(Math.random()-0.5)*0.5];}}
+      F.lbYes.visible=F.lbNo.visible=false;F.st='cast';F.t=0.9;F.m.armL.rotation.x=-1.05;F.bp=WINTER?F.home.slice():[F.home[0]+(Math.random()-0.5)*0.6,F.home[1]+(Math.random()-0.5)*0.4];F.nib=0;}}
   else if(F.st==='cast'){const u=1-Math.max(0,F.t)/0.9;F.tilt.rotation.x=u<0.35?-0.55-0.9*(u/0.35):-1.45+0.9*Math.min(1,(u-0.35)/0.4);F.m.armR.rotation.x=-1.05-0.5*Math.sin(u*PI);
     const k=Math.max(0,(u-0.35)/0.65);b.set(_ft.x+(F.bp[0]-_ft.x)*k,(_ft.y*(1-k)+0.08*k)+Math.sin(k*PI)*0.8,_ft.z+(F.bp[1]-_ft.z)*k);
     if(F.t<=0){F.st='wait';F.t=7+Math.random()*8;F.m.armR.rotation.x=-1.05;ring(F.bp[0],F.bp[1],0.6);if(near)Snd.sweep(700,300,0.07,'sine',0.015);}}
   const P_=F.line.geometry.attributes.position,mx=(_ft.x+b.x)/2,mz=(_ft.z+b.z)/2,my=Math.min(_ft.y,b.y+0.12)*0.5+0.05;
   P_.setXYZ(0,_ft.x,_ft.y,_ft.z);P_.setXYZ(1,mx,my+(F.st==='wait'?0:0.3),mz);P_.setXYZ(2,b.x,b.y+0.12,b.z);P_.needsUpdate=true;}
+/* ---------- рыбалка мальчика: сидит на своём табурете рядом с рыбаком, ждёт поплавок и подсекает вовремя ---------- */
+const ANG={on:false,st:'off',t:0,catch:0,nib:0,fish:null},ANG_BITE=1.5;
+const ANG_FISH=['#B9C3C9','#F2B632','#F08A2C'];
+function initAngler(){const A=ANG,par=roomGroups.pond,x=-0.4,z=2.45;Object.assign(A,{par,x,z,home:[x+0.05,z-3.1]});A.bp=A.home.slice();
+  const sg=grp(par,x,0,z);add(sg,cyl(0.26,0.22,0.06,12),toon('#9A6A3E'),0,0.45,0);
+  [0,1,2].forEach(i=>{const a=i*2.1+0.5;add(sg,cyl(0.025,0.025,0.46,5),toon('#7A4524'),Math.cos(a)*0.16,0.22,Math.sin(a)*0.16);});
+  blob(sg,0.4);outline(sg,0.02);addSeat(sg,0,0.5,0,PI,'fish');
+  const bk=grp(par,x-0.65,0,z-0.05);add(bk,cyl(0.2,0.16,0.36,12),toon('#7FA7C9'),0,0.18,0);nol(add(bk,tor(0.2,0.012,PI),toon(P.chrome),0,0.36,0,0,PI/2,0));nol(add(bk,disc(0.18),toon('#3E6E80'),0,0.3,0,-PI/2,0,0));outline(bk,0.02);
+  A.bucket=[x-0.65,z-0.05];A.inB=[];for(let i=0;i<3;i++){const f=makeFish(ANG_FISH[i]);f.g.position.set(A.bucket[0]+(i-1)*0.07,0.36,A.bucket[1]+(i%2?0.05:-0.04));f.g.rotation.set(-1.2,i*1.3,0);f.g.visible=false;par.add(f.g);A.inB.push(f.g);}
+  const pv=grp(par,x+0.05,0.9,z-0.4,PI),tilt=grp(pv,0,0,0);tilt.rotation.x=-0.55;
+  nol(add(tilt,cyl(0.012,0.03,2.6,6),toon('#3A2E24'),0,0,1.3,PI/2,0,0));nol(add(tilt,cyl(0.05,0.05,0.06,10),toon(P.chrome),0.05,0,0.25,0,0,PI/2));pv.visible=false;A.pv=pv;A.tilt=tilt;
+  const bob=grp(par,A.home[0],0.08,A.home[1]);nol(add(bob,sph(0.05,10,8),toon('#E0362B'),0,0.03,0));nol(add(bob,sph(0.045,10,8),toon('#FFFFFF'),0,-0.01,0));nol(add(bob,cyl(0.008,0.008,0.1,4),toon('#2E2620'),0,0.1,0));bob.visible=false;A.bob=bob;
+  const lg=new T.BufferGeometry();lg.setAttribute('position',new T.BufferAttribute(new Float32Array(9),3));const line=new T.Line(lg,new T.LineBasicMaterial({color:'#2E2620'}));line.frustumCulled=false;line.visible=false;par.add(line);A.line=line;
+  const mk=(txt,o)=>{const l=label(txt,o);l.position.set(x,2.2,z);l.visible=false;par.add(l);return l;};
+  A.lbYes=mk('🐟 Поймал!',{h:0.34,bg:'rgba(242,193,78,0.97)'});A.lbNo=mk('Сорвалась…',{h:0.3});A.lbBite=mk('❗ Клюёт! Жми «Подсечь»',{h:0.36,bg:'rgba(217,67,47,0.97)',fg:'#FFFFFF'});
+  const sign=label('🎣 Порыбачить рядом',{h:0.3,bg:'rgba(242,193,78,0.97)'});sign.position.set(x,1.5,z);sign.userData.ui=true;par.add(sign);A.sign=sign;
+  /* зимой — своя лунка во льду */
+  winterOnly(nol(add(par,disc(0.22),basic('#1D3440'),A.home[0],0.16,A.home[1],-PI/2,0,0)));winterOnly(nol(add(par,tor(0.24,0.04),toon('#F4FAFF'),A.home[0],0.16,A.home[1],PI/2,0,0)));}
+function anglerCastPoint(){return WINTER?ANG.home.slice():[ANG.home[0]+(Math.random()-0.5)*0.6,ANG.home[1]+(Math.random()-0.5)*0.4];}
+function anglerStart(){const A=ANG;A.on=true;A.st='cast';A.t=0.9;A.nib=0;A.bp=anglerCastPoint();A.pv.visible=true;A.line.visible=true;A.sign.visible=false;
+  A.inB.forEach((g,i)=>g.visible=i<Math.min(3,A.catch));}
+function anglerStop(){const A=ANG;if(!A.par)return;A.on=false;A.st='off';A.pv.visible=false;A.bob.visible=false;A.line.visible=false;A.sign.visible=true;
+  [A.lbYes,A.lbNo,A.lbBite].forEach(l=>l.visible=false);if(A.fish){if(A.fish.g.parent)A.fish.g.parent.remove(A.fish.g);A.fish=null;}actKey=null;}
+/* подсечка: удаётся, только пока поплавок нырнул; слишком рано — рыба пугается и ждать придётся дольше */
+function anglerHook(){const A=ANG;if(!A.on)return;
+  if(A.st==='bite'){A.st='pull';A.t=0.9;A.lbBite.visible=false;ring(A.bob.position.x,A.bob.position.z,1);Snd.splash(0.04);
+    const f=makeFish(ANG_FISH[(Math.random()*3)|0]);privMats(f.g,new Map());f.g.scale.setScalar(1.6);A.par.add(f.g);A.fish=f;actKey=null;renderActs();}
+  else if(A.st==='wait'){A.t+=1.5;toast('Рано! Рыба испугалась. Подсекай, когда поплавок нырнёт.');Snd.nope();}}
+function updAngler(dt,t){const A=ANG;if(!A.on)return;const b=A.bob.position;A.t-=dt;
+  A.tilt.updateMatrixWorld(true);_ft.set(0,0,2.6);A.tilt.localToWorld(_ft);A.par.worldToLocal(_ft);A.bob.visible=!WINTER;
+  if(A.st==='cast'){const u=1-Math.max(0,A.t)/0.9;A.tilt.rotation.x=u<0.35?-0.55-0.9*(u/0.35):-1.45+0.9*Math.min(1,(u-0.35)/0.4);
+    const k=Math.max(0,(u-0.35)/0.65);b.set(_ft.x+(A.bp[0]-_ft.x)*k,(_ft.y*(1-k)+0.08*k)+Math.sin(k*PI)*0.8,_ft.z+(A.bp[1]-_ft.z)*k);
+    if(A.t<=0){A.st='wait';A.t=3.5+Math.random()*5.5;A.nib=0;ring(A.bp[0],A.bp[1],0.6);Snd.sweep(700,300,0.07,'sine',0.015);}}
+  else if(A.st==='wait'){b.set(A.bp[0],0.08+Math.sin(t*2)*0.006-(A.nib>0?0.03:0),A.bp[1]);A.tilt.rotation.x=-0.55+Math.sin(t*0.7)*0.02;A.nib-=dt;
+    if(A.nib<-0.8&&A.t>1&&Math.random()<dt*0.5){A.nib=0.18;ring(A.bp[0],A.bp[1],0.3);}
+    if(A.t<=0){A.st='bite';A.t=ANG_BITE;A.lbBite.visible=true;ring(A.bp[0],A.bp[1],0.5);Snd.tone(880,0.1,'triangle',0.05);Snd.tone(660,0.1,'triangle',0.05,0.12);actKey=null;renderActs();}}
+  else if(A.st==='bite'){b.set(A.bp[0],0.02+Math.sin(t*30)*0.02,A.bp[1]);A.tilt.rotation.x=-0.55-Math.sin(t*20)*0.05;
+    if(A.t<=0){A.st='lost';A.t=1.2;A.lbBite.visible=false;A.lbNo.visible=true;Snd.nope();actKey=null;renderActs();}}
+  else if(A.st==='lost'){b.set(A.bp[0],0.08,A.bp[1]);A.tilt.rotation.x=-0.55;if(A.t<=0){A.lbNo.visible=false;A.st='cast';A.t=0.9;A.bp=anglerCastPoint();}}
+  else if(A.st==='pull'){const u=1-Math.max(0,A.t)/0.9;A.tilt.rotation.x=-0.55-0.75*u;
+    const a=[A.bp[0],0.05,A.bp[1]],c=[A.x+0.05,1.4,A.z-0.75],m=[(a[0]+c[0])/2,1.6,(a[2]+c[2])/2],w=i=>(1-u)*(1-u)*a[i]+2*(1-u)*u*m[i]+u*u*c[i];
+    b.set(w(0),w(1)+0.12,w(2));A.fish.g.position.set(w(0),w(1),w(2));A.fish.g.rotation.set(-1.3,0,Math.sin(t*25)*0.5);
+    if(A.t<=0){A.st='show';A.t=1.4;A.catch++;A.lbYes.visible=true;Snd.tone(660,0.1,'triangle',0.05);Snd.tone(990,0.14,'triangle',0.05,0.1);toast('Поймал рыбу! Улов: 🐟 ×'+A.catch+'.');renderPlay();}}
+  else if(A.st==='show'){const u=1-Math.max(0,A.t)/1.4;A.tilt.rotation.x=-1.3;b.set(A.x+0.05,1.3,A.z-0.75);
+    const k=Math.max(0,(u-0.6)/0.4),s=[A.x+0.05,1.35,A.z-0.75],e=[A.bucket[0],0.42,A.bucket[1]];
+    A.fish.g.position.set(s[0]+(e[0]-s[0])*k,s[1]+(e[1]-s[1])*k+Math.sin(k*PI)*0.3,s[2]+(e[2]-s[2])*k);A.fish.g.rotation.z=Math.sin(t*20)*0.6*(1-k);
+    if(A.t<=0){if(A.fish.g.parent)A.fish.g.parent.remove(A.fish.g);A.fish=null;A.inB.forEach((g,i)=>g.visible=i<Math.min(3,A.catch));A.lbYes.visible=false;
+      A.st='cast';A.t=0.9;A.bp=anglerCastPoint();}}
+  const P_=A.line.geometry.attributes.position,mx=(_ft.x+b.x)/2,mz=(_ft.z+b.z)/2,my=Math.min(_ft.y,b.y+0.12)*0.5+0.05;
+  P_.setXYZ(0,_ft.x,_ft.y,_ft.z);P_.setXYZ(1,mx,my+(A.st==='wait'?0:0.3),mz);P_.setXYZ(2,b.x,b.y+0.12,b.z);P_.needsUpdate=true;}
+/* руки мальчика держат удочку; вызывается из sitPose */
+function anglerPose(t){const A=ANG;let r=-1.05,l=-1.05;
+  if(A.st==='cast'){const u=1-Math.max(0,A.t)/0.9;r=-1.05-0.5*Math.sin(u*PI);}
+  else if(A.st==='bite'){r=l=-1.05+Math.sin(t*25)*0.08;}
+  else if(A.st==='pull'){const u=1-Math.max(0,A.t)/0.9;r=l=-1.05-0.6*u;boy.body.rotation.x=-0.15*u;}
+  else if(A.st==='show'){r=-1.6;l=-2.4;}
+  boy.armR.rotation.set(r,0,0);boy.armL.rotation.set(l,0,0);}
 /* ---------- лодка: садишься у берега, плывёшь, куда нажал по воде; нажал на берег — причалил ---------- */
 function boatFree(x,z){return inPond(x,z,0.55)&&!(x>1.9&&x<4.1&&z>0.2);}
 function boatClampIn(x,z){let bx=clamp(x,-(POND.hw-0.6),POND.hw-0.6),bz=clamp(z,-(POND.hh-0.6),POND.hh-0.6);if(bx>1.9&&bx<4.1&&bz>0.2)bz=0.15;
@@ -2228,18 +2286,19 @@ const VEG={carrot:{e:'🥕',n:'морковку',c:'#F08A2C'},cabbage:{e:'🥬',
 function addSeat(par,lx,ly,lz,ry,kind){SEATS.push({par,l:[lx,ly,lz],ry:ry||0,kind:kind||'bench'});}
 function initSeats(){SEATS.forEach(s=>{s.par.updateMatrixWorld(true);const v=s.par.localToWorld(new T.Vector3(s.l[0],s.l[1],s.l[2])),
     f=s.par.localToWorld(new T.Vector3(s.l[0]+Math.sin(s.ry)*0.75,s.l[1],s.l[2]+Math.cos(s.ry)*0.75));
-  const back=['rest','chair','izba'].includes(s.kind);if(back){const b=s.par.localToWorld(new T.Vector3(s.l[0]-Math.sin(s.ry)*0.7,s.l[1],s.l[2]-Math.cos(s.ry)*0.7));s.stand=[b.x,b.z];}else s.stand=[f.x,f.z];
+  const back=['rest','chair','izba','fish'].includes(s.kind);if(back){const b=s.par.localToWorld(new T.Vector3(s.l[0]-Math.sin(s.ry)*0.7,s.l[1],s.l[2]-Math.cos(s.ry)*0.7));s.stand=[b.x,b.z];}else s.stand=[f.x,f.z];
   s.p=[v.x,v.y,v.z];s.yaw=Math.atan2(f.x-v.x,f.z-v.z);let r=s.par;while(r.parent&&r.parent!==scene)r=r.parent;s.room=Object.keys(roomGroups).find(k=>roomGroups[k]===r);});
   GARDEN.beds.forEach(b=>b.plants.forEach(p=>{p.g.updateMatrixWorld(true);const v=p.g.localToWorld(new T.Vector3());p.wx=v.x;p.wz=v.z;p.wy=v.y;}));}
 /* ---------- сидеть ---------- */
 function seatNear(p,maxD){let best=null,bd=maxD||2.2;SEATS.forEach(s=>{if(s.room!==S.room)return;const d=Math.hypot(s.stand[0]-p.x,s.stand[1]-p.z);if(d<bd){bd=d;best=s;}});return best;}
 function sitGo(s){walkTo(s.stand[0],s.stand[1],()=>{if(Math.hypot(boy.g.position.x-s.p[0],boy.g.position.z-s.p[2])<1.8)sitDown(s);else toast('Не подойти — что-то мешает.');},0.25);}
 function sitDown(s){S.sit={s,t:0};walk=null;S.hidden=false;boy.g.position.set(s.p[0],s.p[1]-0.6,s.p[2]);boy.g.rotation.y=s.yaw;actKey=null;renderPlay();
-  if(s.kind==='rest')toast('Присел за столик. Сейчас принесут…');}
-function standUp(){const st=S.sit;if(!st)return;S.sit=null;if(st.plate){st.plate.parent.remove(st.plate);}const q=freeNear(navGrid(S.room),st.s.stand[0],st.s.stand[1],roomReach(S.room).ok);
+  if(s.kind==='rest')toast('Присел за столик. Сейчас принесут…');
+  if(s.kind==='fish'){anglerStart();toast('Забросил удочку. Жди, пока поплавок нырнёт, и жми «Подсечь»!');}}
+function standUp(){const st=S.sit;if(!st)return;S.sit=null;if(st.s.kind==='fish')anglerStop();if(st.plate){st.plate.parent.remove(st.plate);}const q=freeNear(navGrid(S.room),st.s.stand[0],st.s.stand[1],roomReach(S.room).ok);
   boy.g.position.set(q[0],0,q[1]);actKey=null;renderPlay();}
 function sitPose(t){boy.legL.rotation.set(-1.35,0,0);boy.legR.rotation.set(-1.35,0,0);const st=S.sit,eat=st&&st.plate&&st.t>1.6;
-  boy.armL.rotation.set(-0.5,0,0);boy.armR.rotation.set(eat?-1.3+Math.sin(t*5)*0.25:-0.5,0,0);boy.body.position.y=boy.by+(eat?0:Math.sin(t*2)*0.01);}
+  boy.armL.rotation.set(-0.5,0,0);boy.armR.rotation.set(eat?-1.3+Math.sin(t*5)*0.25:-0.5,0,0);boy.body.position.y=boy.by+(eat?0:Math.sin(t*2)*0.01);if(st&&st.s.kind==='fish')anglerPose(t);}
 function blini(){const g=new T.Group();add(g,cyl(0.16,0.14,0.02,16),toon('#FFFFFF'),0,0.01,0);for(let i=0;i<4;i++){const b=add(g,cyl(0.11,0.11,0.012,14),toon(i%2?'#E3BF8A':'#D9AE6E'),0.01*(i%2),0.025+i*0.013,0);}
   add(g,sph(0.035,8,6),toon('#FFFFFF'),0.03,0.09,0.02).scale.y=0.6;add(g,cyl(0.045,0.04,0.08,10),toon('#F4F1EA'),0.2,0.04,-0.05);nol(add(g,cyl(0.04,0.04,0.01,10),toon('#9A5A2E'),0.2,0.08,-0.05));
   outline(g,0.01);return g;}
@@ -2833,7 +2892,7 @@ function renderPlay(){if(!S)return;const R=ROOMS[S.room],st=curStep(),n=route.st
   {const rid=S.cut?'yard':S.room;$('roomTag').textContent=ROOM_ICON[rid]+' '+ROOMS[rid].name;}const sn='Шаг '+Math.min(S.step+1,n)+' из '+n+'. ';
   $('hintBtn').classList.toggle('hidden',mode.hints===0);$('hintCount').textContent=mode.hints===Infinity?'':String(S.hints);
   const g=$('goal');
-  if(mode.walk)g.textContent='Прогулка без заданий: пруд с рыбаком и лодкой, мельница-музей и ресторан «Бусы», деревянный город. В дома можно заходить. Зимой у пруда — горка с ватрушками.'+(basketTotal()?' В корзинке: '+basketText():'');
+  if(mode.walk)g.textContent='Прогулка без заданий: пруд с рыбаком и лодкой, мельница-музей и ресторан «Бусы», деревянный город. В дома можно заходить. Зимой у пруда — горка с ватрушками. Можно присесть рядом с рыбаком и порыбачить.'+(basketTotal()?' В корзинке: '+basketText()+'.':'')+(ANG.catch?' Улов: 🐟 ×'+ANG.catch+'.':'');
   else if(S.cut)g.textContent='Получилось! Все выбираются на волю.';
   else if(mode.showGoal&&st){const m=missing(st);g.textContent=sn+st.label+' — «'+ROOMS[st.room].name+'»'+(m.length?'. Нужно: '+m.join(', '):'. Всё нужное с собой.');}
   else g.textContent=sn+'Цель не подсказывается: осматривай комнаты и пробуй предметы на местах.';
@@ -2857,9 +2916,10 @@ function renderActs(){if(!S)return;const a=$('acts'),R=ROOMS[S.room],st=curStep(
   if(WINTER&&!S.ride&&!S.boat&&!S.cut&&!S.over&&S.room==='pond'&&(Math.hypot(p.x-HILL.sx,p.z-3.9)<3.6||Math.hypot(p.x-HILL.pile[0],p.z-HILL.pile[1])<3.4))list.unshift({t:'🛝 Скатиться на ватрушке',c:'go',h:{kind:'ride',pos:[HILL.sx,3.75]}});
   if(S.ride)list.length=0;
   if(S.sit){list.length=0;list.push({t:'🧍 Встать',c:'',h:{kind:'stand',pos:[+S.sit.s.p[0].toFixed(1),+S.sit.s.p[2].toFixed(1)]}});
-    if(S.sit.s.kind==='rest')list.push({t:'♟ Сыграть в шахматы',c:'go',h:{kind:'chess',pos:[0,0]}});}
+    if(S.sit.s.kind==='rest')list.push({t:'♟ Сыграть в шахматы',c:'go',h:{kind:'chess',pos:[0,0]}});
+    if(S.sit.s.kind==='fish')list.push(ANG.st==='bite'?{t:'🎣 ПОДСЕЧЬ!',c:'go',f:anglerHook}:{t:'🎣 Подсечь',c:'muted',f:anglerHook});}
   else if(S.harv)list.length=0;
-  else if(!S.cut&&!S.over&&!S.boat&&!S.ride){const sn=seatNear(p,2.2);if(sn)list.push({t:sn.kind==='rest'?'🍽 Сесть за столик':'🪑 Присесть',c:'go',h:{kind:'seat',pos:sn.stand.map(v=>+v.toFixed(1)),seat:SEATS.indexOf(sn)}});
+  else if(!S.cut&&!S.over&&!S.boat&&!S.ride){const sn=seatNear(p,2.2);if(sn)list.push({t:sn.kind==='rest'?'🍽 Сесть за столик':sn.kind==='fish'?'🎣 Сесть рыбачить':'🪑 Присесть',c:'go',h:{kind:'seat',pos:sn.stand.map(v=>+v.toFixed(1)),seat:SEATS.indexOf(sn)}});
     const bd=!WINTER&&bedNear(p,1.9);if(bd)list.unshift({t:VEG[bd.kind].e+' Собрать урожай',c:'go',h:{kind:'harvest',pos:[bd.x,bd.z],bed:GARDEN.beds.indexOf(bd)}});
     if(basketTotal()>0&&!S.feed&&hareNear(p,5.5))list.unshift({t:'🐰 Угостить зайчика',c:'go',h:{kind:'feed',pos:[0,0]}});}
   const kOf=x=>x.t+'|'+x.c+'|'+(x.h?x.h.pos.join(','):''),key=list.map(kOf).join('#');if(key===actKey)return;actKey=key;
@@ -2899,7 +2959,7 @@ function titleView(){const W=stage.clientWidth||800,Hh=stage.clientHeight||500,e
   const Ex=e.x1-e.x0,Ey=e.y1-e.y0,s=Math.max(3,Math.min(x1/Ex,(y1-y0)/Ey)*0.97);
   const cx=(e.x0+e.x1)/2-(x1/2-W/2)/s,cy=(e.y0+e.y1)/2+((y0+y1)/2-Hh/2)/s;
   Object.assign(VIEW,{ext:null,follow:false,orbit:0.08,fixed:{halfH:Hh/(2*s),cx,cy}});fitCamera();}
-function showTitle(){if(mode.walk&&prevMode)mode=prevMode;if(S&&S.sit&&S.sit.plate)S.sit.plate.parent.remove(S.sit.plate);if(S&&S.ride)tubesHome();S=null;walk=null;boy.moving=false;resetCutVisuals();Object.keys(roomGroups).forEach(k=>roomGroups[k].visible=(k==='yard'));applyFlags({});setUi(false);
+function showTitle(){if(mode.walk&&prevMode)mode=prevMode;if(S&&S.sit&&S.sit.plate)S.sit.plate.parent.remove(S.sit.plate);if(S&&S.ride)tubesHome();anglerStop();S=null;walk=null;boy.moving=false;resetCutVisuals();Object.keys(roomGroups).forEach(k=>roomGroups[k].visible=(k==='yard'));applyFlags({});setUi(false);
   if(itemsG&&itemsG.parent)itemsG.parent.remove(itemsG);itemsG=null;stepRing.visible=false;
   ['hud','actbar','endCard','bagSheet','eye'].forEach(id=>$(id).classList.add('hidden'));$('vign').classList.remove('on');
   $('titleOv').classList.remove('hidden');$('menu').classList.remove('hidden');
@@ -2971,14 +3031,14 @@ function loop(now){requestAnimationFrame(loop);if(window.__platOpen){last=now;re
   if(S&&S.cut)updateCut(dt);
   if(VIEW.follow&&S&&!S.cut){centerOn(boy.g.position,false);VIEW.target.lerp(VIEW.goal,Math.min(1,dt*5));}
   actT-=dt;if(actT<=0){actT=0.2;renderActs();}
-  updateCritters(dt,t);updateWinter(dt,t);if(S&&S.sit)updateSit(dt,t);updateGarden(dt,t);updWaiter(dt,t);updateBoat(dt,t);if(roomGroups.pond&&roomGroups.pond.visible)updFisher(dt,t,!!(S&&!S.cut&&!S.over&&S.room==='pond'),boy.g.position);updateInside(dt,t);updateWalkLife(dt,t);animateAll(dt,t);updateConfetti(dt);updateEye();placeCamera(t);renderer.render(scene,camera);}
+  updateCritters(dt,t);updateWinter(dt,t);if(S&&S.sit)updateSit(dt,t);updAngler(dt,t);updateGarden(dt,t);updWaiter(dt,t);updateBoat(dt,t);if(roomGroups.pond&&roomGroups.pond.visible)updFisher(dt,t,!!(S&&!S.cut&&!S.over&&S.room==='pond'),boy.g.position);updateInside(dt,t);updateWalkLife(dt,t);animateAll(dt,t);updateConfetti(dt);updateEye();placeCamera(t);renderer.render(scene,camera);}
 let actT=0;
-function boot(){loadSave();buildRooms();resolveSpots();buildCritters();buildWalkLife();initPond2();initWinter();initSeats();hotCyl(roomHots.pond,HILL.sx,3.75,0.8,{kind:'ride'},1.6);fitCamera();showTitle();if(!SAVE.help)openHelp();requestAnimationFrame(loop);}
+function boot(){loadSave();buildRooms();resolveSpots();buildCritters();buildWalkLife();initPond2();initAngler();initWinter();initSeats();hotCyl(roomHots.pond,HILL.sx,3.75,0.8,{kind:'ride'},1.6);fitCamera();showTitle();if(!SAVE.help)openHelp();requestAnimationFrame(loop);}
 window.__pobeg={ROUTES,ROOMS,MODES,START_ROOM,WROOM,
   setup:(r,m)=>{route=r;mode=m;},newRun:(cp,h)=>newRun(cp,h),state:()=>S,take,tryAt,doStep,missing,curStep,startGame,showTitle,
   setRoom:id=>{S.room=id;setRoomVisible(id);refresh();},
   cam:()=>camera,critters:()=>CRIT,winter:{setWinter,startRide,rideGo,isWinter:()=>WINTER,WIN,HILL,hillY,tubesHome},inter:{SEATS,GARDEN,sitDown,standUp,harvestGo,feedHare,seatNear,bedNear,hareNear,basketTotal},walkApi:{boardBoat,boatTap,dockShore,dockPier,goRoom,updateBoat,boatRoute,boatFree},walkLife:()=>WL,startWalk,inPond,WALK_MODE,snd:()=>Snd,itemFx:()=>ITEMFX,pickNdc:(x,y)=>{ndc.set(x,y);ray.setFromCamera(ndc,camera);return pickHot();},boyObj:()=>boy,view:()=>VIEW,navPath,navGrid,buildGrid,navBlocked,navLos,walkTo,walkState:()=>walk,
-  wardenObj:()=>warden,roomGroup:id=>roomGroups[id],freeNear,
+  angler:()=>ANG,anglerHook,wardenObj:()=>warden,roomGroup:id=>roomGroups[id],freeNear,
   back:()=>{const b=$('bagSheet');if(!b.classList.contains('hidden')){b.classList.add('hidden');return 'sheet';}if(S){showTitle();return 'menu';}return 'exit';},
   putWarden:st=>{const w=S.w;w.state=st;w.room=WROOM[st];const p=ROOMS[w.room].wardenAt;w.x=p[0];w.z=p[1];w.mode='dwell';w.timer=999;w.path=[];placeWarden();},goRoom,caught,loop,act,
   fx:{smoke:()=>{const F=WL.fisher;F.st='wait';F.t=12;F.smkT=0;F.smoke=0;},box:()=>{BOX.idle=0;BOX.next=0;},
