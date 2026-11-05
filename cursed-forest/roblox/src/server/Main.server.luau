@@ -2,7 +2,7 @@
 local Services = script.Parent:WaitForChild("Services")
 
 local S = {}
-for _, name in ipairs({ "State", "Data", "WorldBuilder", "Drops", "Camp", "Mobs", "Combat", "Guardians", "Structures", "PlayerService", "TimeService" }) do
+for _, name in ipairs({ "State", "Data", "WorldBuilder", "Drops", "Camp", "Mobs", "Combat", "Guardians", "Structures", "PlayerService", "TimeService", "Tutorial" }) do
 	S[name] = require(Services:WaitForChild(name))
 end
 

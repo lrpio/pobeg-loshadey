@@ -138,6 +138,48 @@ end
 local hotbar = new("Frame", { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -12), Size = UDim2.fromOffset(600, 58), BackgroundTransparency = 1 }, hud)
 new("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 4), HorizontalAlignment = Enum.HorizontalAlignment.Center }, hotbar)
 
+-- задание обучения (справа сверху) и стрелка к цели
+local quest = new("Frame", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 16), Size = UDim2.fromOffset(300, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundColor3 = C.bg, BackgroundTransparency = 0.15, Visible = false }, hud)
+corner(quest, 6)
+stroke(quest, C.ember)
+new("UIPadding", { PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8), PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, quest)
+new("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, quest)
+local questTitle = label(quest, "", 12, { TextColor3 = C.ember2, Font = FONT_BOLD, LayoutOrder = 1 })
+local questText = label(quest, "", 16, { Font = FONT_BOLD, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 0), LayoutOrder = 2 })
+local questHint = label(quest, "", 13, { TextColor3 = C.muted, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 0), LayoutOrder = 3 })
+local questDist = label(quest, "", 13, { TextColor3 = C.ember, Font = FONT_BOLD, LayoutOrder = 4 })
+
+local marker = new("Part", { Name = "QuestMarker", Anchored = true, CanCollide = false, CanQuery = false, CanTouch = false, Transparency = 1, Size = Vector3.one * 0.5 }, workspace)
+local markerGui = new("BillboardGui", { Size = UDim2.fromOffset(90, 60), AlwaysOnTop = true, Adornee = marker, Enabled = false }, marker)
+local markerText = new("TextLabel", { BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), Text = "▼", TextColor3 = C.ember2, TextStrokeTransparency = 0.2, Font = FONT_BOLD, TextScaled = true }, markerGui)
+local questTarget = nil
+
+-- помощь: управление и первые шаги
+local helpBtn = new("TextButton", { Position = UDim2.fromOffset(16, 172), Size = UDim2.fromOffset(110, 30), Text = "❓ Помощь (H)", Font = FONT_BOLD, TextSize = 13, TextColor3 = C.ink, BackgroundColor3 = C.bg, BackgroundTransparency = 0.2 }, hud)
+corner(helpBtn, 6)
+stroke(helpBtn)
+local HELP = table.concat({
+	"УПРАВЛЕНИЕ",
+	"W A S D — идти, Пробел — прыжок, мышь — смотреть",
+	"Левая кнопка мыши — удар или выстрел (можно держать)",
+	"1–9 — выбрать оружие (внизу экрана)",
+	"E — действие: подойди к предмету, появится подсказка",
+	"F — фонарик или факел · R — поесть · B — бинт · G — бросить бомбу · Q — приручить зверя · H — эта помощь",
+	"",
+	"С ЧЕГО НАЧАТЬ",
+	"Следуй заданиям справа сверху: стрелка ▼ показывает, куда идти.",
+	"Днём руби деревья, охоться и открывай сундуки. Ночью держись у костра.",
+	"Добыча из мешка сама ложится на склад, когда входишь в лагерь.",
+	"Олень ночью боится света: свети на него фонариком (F).",
+	"Мешок маленький: 5 ячеек по 10 предметов. Лишнее неси в лагерь.",
+}, "\n")
+helpBtn.Activated:Connect(function()
+	-- открываем окно помощи локально, через тот же модуль окон
+	if _G.__openLocalPanel then
+		_G.__openLocalPanel("Помощь", HELP)
+	end
+end)
+
 local state = nil
 local selected = 1
 
@@ -302,10 +344,22 @@ Remotes.Panel.OnClientEvent:Connect(function(data)
 	modal.Visible = true
 end)
 
+_G.__openLocalPanel = function(titleText: string, bodyText: string)
+	for _, c in ipairs(scroll:GetChildren()) do
+		if c:IsA("GuiObject") then
+			c:Destroy()
+		end
+	end
+	currentPanel = "help"
+	mTitle.Text = titleText
+	label(scroll, bodyText, 15, { AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 0), ZIndex = 23, LayoutOrder = 1 })
+	modal.Visible = true
+end
+
 ----------------------------------------------------------------- выбор класса
 local classScreen = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = C.bg, ZIndex = 30 }, gui)
 local title = label(classScreen, "100 дней в Проклятом лесу", 40, { Position = UDim2.fromOffset(24, 20), Size = UDim2.new(1, -48, 0, 48), Font = FONT_BOLD, ZIndex = 31 })
-local subtitle = label(classScreen, "Выбери класс. Новые классы покупаются за алмазы, их дают за прохождение 100 дней и в замке оккультистов.", 15, { Position = UDim2.fromOffset(24, 72), Size = UDim2.new(1, -48, 0, 40), TextColor3 = C.muted, ZIndex = 31 })
+local subtitle = label(classScreen, "Выбери класс и нажми «Играть». Новичку проще всего Охотник: у него винтовка. Новые классы покупаются за алмазы.", 15, { Position = UDim2.fromOffset(24, 72), Size = UDim2.new(1, -48, 0, 40), TextColor3 = C.muted, ZIndex = 31 })
 local diamondText = label(classScreen, "", 16, { Position = UDim2.fromOffset(24, 112), Size = UDim2.new(1, -48, 0, 22), TextColor3 = C.ember2, Font = FONT_BOLD, ZIndex = 31 })
 local grid = new("ScrollingFrame", { Position = UDim2.fromOffset(24, 142), Size = UDim2.new(1, -48, 1, -160), BackgroundTransparency = 1, CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollBarThickness = 6, ZIndex = 31 }, classScreen)
 new("UIGridLayout", { CellSize = UDim2.fromOffset(260, 120), CellPadding = UDim2.fromOffset(8, 8) }, grid)
@@ -357,6 +411,17 @@ Remotes.State.OnClientEvent:Connect(function(s)
 	dayBar.BackgroundColor3 = s.night and Color3.fromRGB(70, 90, 160) or C.ember
 	raidText.Text = (s.night and (s.raid == "occult" and "Ночь оккультистов" or "Ночь вампиров") or "")
 		.. (s.biome and ("  · биом: " .. s.biome) or "  · загляни на стенд у костра")
+	local t = s.tutorial
+	if t then
+		quest.Visible = true
+		questTitle.Text = "📜 ЗАДАНИЕ " .. t.i .. " ИЗ " .. t.n
+		questText.Text = t.text
+		questHint.Text = t.hint
+		questTarget = t.target
+	else
+		quest.Visible = false
+		questTarget = nil
+	end
 	if selected > #s.inv.weapons then
 		selected = 1
 	end
@@ -407,6 +472,8 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	elseif k == Enum.KeyCode.R then
 		Remotes.Action:FireServer("eat")
 	elseif k == Enum.KeyCode.H then
+		_G.__openLocalPanel("Помощь", HELP)
+	elseif k == Enum.KeyCode.B then
 		Remotes.Action:FireServer("bandage")
 	elseif k == Enum.KeyCode.G then
 		Remotes.Action:FireServer("throw", aimPoint())
@@ -457,10 +524,21 @@ if isTouch then
 	tbtn("⚔️\nУдар", nil, true)
 end
 
--- здоровье обновляется плавно между пакетами состояния
+-- здоровье обновляется плавно между пакетами состояния; стрелка к цели задания
 RunService.Heartbeat:Connect(function()
 	local char = player.Character
 	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if questTarget and root and hud.Visible then
+		local d = (questTarget - root.Position).Magnitude
+		marker.Position = questTarget
+		markerGui.Enabled = d > 8
+		markerText.Text = "▼\n" .. math.floor(d) .. " м"
+		questDist.Text = d > 8 and ("До цели: " .. math.floor(d) .. " м — иди к стрелке ▼") or "Ты на месте"
+	else
+		markerGui.Enabled = false
+		questDist.Text = ""
+	end
 	if hum and hud.Visible then
 		hpFill.Size = UDim2.fromScale(math.clamp(hum.Health / hum.MaxHealth, 0, 1), 1)
 		hpText.Text = string.format("Здоровье %d/%d", math.floor(hum.Health), math.floor(hum.MaxHealth))

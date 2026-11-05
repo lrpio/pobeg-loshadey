@@ -76,6 +76,7 @@ local function sendState(ps)
 		fire = { level = run.camp.level, fuel = run.camp.fuel },
 		biome = ps.knowsBiome and run.biome.name or nil,
 		diamonds = (S.Data.get(ps.player) or {}).diamonds or 0,
+		tutorial = ps.tutInfo,
 	})
 	ps.dirty = false
 end
@@ -246,6 +247,7 @@ local function onChoose(player: Player, classId, buy)
 		end
 	end
 	ps.class = cls.id
+	ps.joinDay = State.run.day
 	giveKit(ps)
 	player:LoadCharacter()
 	State.notify(player, "Ты " .. cls.name .. ". Загляни на стенд пропавших детей у костра: узнаешь, кто за тобой охотится", "good")
@@ -342,6 +344,7 @@ local function eat(ps)
 				v *= 1.6
 			end
 			ps.hunger = math.min(100, ps.hunger + v)
+			ps.flags.ate = true
 			if def.heal then
 				PlayerService.heal(ps, def.heal)
 			end
@@ -487,6 +490,13 @@ local function tick(dt: number)
 					S.Camp.deposit(ps)
 				end
 				ps.inBush = S.WorldBuilder.inBush(pos)
+				local ok, info = pcall(S.Tutorial.update, ps, pos)
+				if ok then
+					if (info and info.i) ~= (ps.tutInfo and ps.tutInfo.i) then
+						ps.dirty = true
+					end
+					ps.tutInfo = info
+				end
 				S.Drops.pickup(ps, pos)
 			end
 			if ps.dirty then

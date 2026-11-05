@@ -174,6 +174,19 @@ function Mobs.spawn(kind: string, pos: Vector3, extra)
 	return mob
 end
 
+function Mobs.nearestKind(kind: string, pos: Vector3): Vector3?
+	local best, bd = nil, math.huge
+	for _, m in ipairs(list) do
+		if m.alive and not m.ally and m.kind == kind then
+			local d = (m.root.Position - pos).Magnitude
+			if d < bd then
+				best, bd = m.root.Position, d
+			end
+		end
+	end
+	return best and (best + Vector3.new(0, 3, 0)) or nil
+end
+
 function Mobs.all()
 	return list
 end

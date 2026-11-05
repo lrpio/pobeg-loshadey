@@ -190,6 +190,7 @@ handlers.totem = function(ps, action)
 	local i = tonumber(action:sub(2))
 	local t = i and Recipes.TOTEM[i]
 	if t and S.Camp.pay(ps, { [t.pelt] = 1 }) then
+		ps.flags.totem = true
 		State.notify(ps.player, "Тотем: " .. S.PlayerService.grant(ps, t.give), "good")
 	end
 	openTotem(ps)

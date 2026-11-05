@@ -46,6 +46,7 @@ function Camp.deposit(ps)
 		end
 	end
 	if moved > 0 then
+		ps.flags.deposited = true
 		State.notify(ps.player, "Добыча сложена на склад лагеря (" .. moved .. ")")
 		S.PlayerService.sync(ps)
 	end
@@ -135,11 +136,13 @@ function Camp.action(ps, actionId: string)
 		local n = math.min(actionId == "fuel1" and 1 or 5, have(ps, "wood"))
 		if n > 0 and pay(ps, { wood = n }) then
 			c.fuel = math.min(100, c.fuel + 12 * n)
+			ps.flags.fueled = true
 		end
 	elseif actionId == "cook" then
 		local m, f = have(ps, "meat"), have(ps, "fish")
 		pay(ps, { meat = m, fish = f })
 		if m > 0 then
+			ps.flags.cooked = true
 			ps.inv:add("cmeat", m)
 		end
 		if f > 0 then
@@ -158,6 +161,7 @@ function Camp.action(ps, actionId: string)
 		local id = actionId:sub(7)
 		for _, r in ipairs(Recipes.CRAFT) do
 			if r.id == id and pay(ps, r.cost) then
+				ps.flags.crafted = true
 				local msg = S.PlayerService.grant(ps, r.give)
 				State.notify(ps.player, "Готово: " .. (msg ~= "" and msg or r.name), "good")
 			end

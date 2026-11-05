@@ -297,6 +297,31 @@ function WorldBuilder.build()
 	end
 end
 
+-- Ближайшее дерево или закрытый сундук (для стрелки обучения)
+function WorldBuilder.nearest(kind: string, pos: Vector3): Vector3?
+	local best, bd = nil, math.huge
+	if kind == "chest" then
+		for _, c in ipairs(chests) do
+			if not c.open then
+				local d = (c.part.Position - pos).Magnitude
+				if d < bd then
+					best, bd = c.part.Position, d
+				end
+			end
+		end
+	else
+		for _, r in ipairs(resources) do
+			if r.hp > 0 and r.kind == kind then
+				local d = (r.pos - pos).Magnitude
+				if d < bd then
+					best, bd = r.pos, d
+				end
+			end
+		end
+	end
+	return best and (best + Vector3.new(0, 4, 0)) or nil
+end
+
 function WorldBuilder.inBush(pos: Vector3): boolean
 	for _, b in ipairs(bushes) do
 		local d = Vector3.new(pos.X - b.pos.X, 0, pos.Z - b.pos.Z).Magnitude
