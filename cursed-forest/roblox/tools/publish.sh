@@ -4,6 +4,8 @@
 # VERSION_TYPE=Saved — сохранить без публикации (по умолчанию Published).
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# номера опыта и места по умолчанию из tools/roblox.env
+if [ -f tools/roblox.env ]; then set -a; . tools/roblox.env; set +a; fi
 : "${ROBLOX_API_KEY:?Нужен ROBLOX_API_KEY (ключ Open Cloud с правом публикации места)}"
 : "${ROBLOX_UNIVERSE_ID:?Нужен ROBLOX_UNIVERSE_ID (ID опыта)}"
 : "${ROBLOX_PLACE_ID:?Нужен ROBLOX_PLACE_ID (ID места)}"
